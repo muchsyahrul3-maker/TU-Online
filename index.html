@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TU-Online - Sistem Manajemen Tata Usaha</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <i class="fas fa-school"></i>
+                <h1>TU-Online</h1>
+                <p>Sistem Manajemen Tata Usaha Sekolah</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="main-app" style="display: none;">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <div class="logo">
+                    <i class="fas fa-school"></i>
+                    <h1 class="logo-full">TU-Online</h1>
+                    <h1 class="logo-short">TU</h1>
+                </div>
+            </div>
+            
+            <nav class="main-nav" id="mainNav">
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-page="suratMasuk">
+                    <i class="fas fa-inbox"></i>
+                    <span>Surat Masuk</span>
+                </a>
+                <a href="#" class="nav-item" data-page="suratKeluar">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Surat Keluar</span>
+                </a>
+                <a href="#" class="nav-item" data-page="arsip">
+                    <i class="fas fa-archive"></i>
+                    <span>Arsip</span>
+                </a>
+                <a href="#" class="nav-item" data-page="laporan">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Laporan</span>
+                </a>
+                <a href="#" class="nav-item" data-page="pengaturan" id="navPengaturan">
+                    <i class="fas fa-cog"></i>
+                    <span>Pengaturan</span>
+                </a>
+            </nav>
+            
+            <div class="header-right">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="logoutBtn" class="btn-logout-header">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <div class="user-details">
+                        <span class="user-name" id="currentUser">User</span>
+                        <span class="user-role" id="currentRole">Role</span>
+                    </div>
+                </div>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Content Area -->
+            <div class="content">
+                <!-- Dashboard Page -->
+                <div id="dashboardPage" class="page active">
+                    <h1 class="page-title">Dashboard</h1>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <i class="fas fa-inbox"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="statSuratMasukHariIni">0</h3>
+                                <p>Surat Masuk Hari Ini</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <i class="fas fa-paper-plane"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="statSuratKeluarMingguIni">0</h3>
+                                <p>Surat Keluar Minggu Ini</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon orange">
+                                <i class="fas fa-archive"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="statArsip">0</h3>
+                                <p>Arsip Tersimpan</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon purple">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="statMenungguApproval">0</h3>
+                                <p>Menunggu Approval</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h2>Aktivitas Surat Per Bulan</h2>
+                        <canvas id="chartAktivitas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Surat Masuk Page -->
+                <div id="suratMasukPage" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Surat Masuk</h1>
+                        <button class="btn-primary" id="btnTambahSuratMasuk">
+                            <i class="fas fa-plus"></i> Tambah Surat Masuk
+                        </button>
+                    </div>
+
+                    <div class="filter-bar">
+                        <input type="text" id="searchSuratMasuk" placeholder="Cari surat..." class="search-input">
+                        <input type="date" id="filterTanggalMasuk" class="filter-input">
+                        <select id="filterAsalSurat" class="filter-input">
+                            <option value="">Semua Asal Surat</option>
+                        </select>
+                        <select id="filterStatusBaca" class="filter-input">
+                            <option value="">Semua Status</option>
+                            <option value="dibaca">Dibaca</option>
+                            <option value="belum">Belum Dibaca</option>
+                        </select>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>No. Surat</th>
+                                    <th>Tanggal Terima</th>
+                                    <th>Asal Surat</th>
+                                    <th>Perihal</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableSuratMasuk">
+                                <tr>
+                                    <td colspan="6" class="no-data">Belum ada data surat masuk</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Surat Keluar Page -->
+                <div id="suratKeluarPage" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Surat Keluar</h1>
+                        <button class="btn-primary" id="btnTambahSuratKeluar">
+                            <i class="fas fa-plus"></i> Tambah Surat Keluar
+                        </button>
+                    </div>
+
+                    <div class="filter-bar">
+                        <input type="text" id="searchSuratKeluar" placeholder="Cari surat..." class="search-input">
+                        <input type="date" id="filterTanggalKeluar" class="filter-input">
+                        <select id="filterStatusApproval" class="filter-input">
+                            <option value="">Semua Status</option>
+                            <option value="disetujui">Disetujui</option>
+                            <option value="menunggu">Menunggu Approval</option>
+                            <option value="ditolak">Ditolak</option>
+                        </select>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>No. Surat</th>
+                                    <th>Tanggal Keluar</th>
+                                    <th>Tujuan</th>
+                                    <th>Perihal</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableSuratKeluar">
+                                <tr>
+                                    <td colspan="6" class="no-data">Belum ada data surat keluar</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Arsip Page -->
+                <div id="arsipPage" class="page">
+                    <div class="page-header">
+                        <h1 class="page-title">Arsip Dokumen</h1>
+                        <button class="btn-primary" id="btnTambahArsip">
+                            <i class="fas fa-plus"></i> Upload Dokumen
+                        </button>
+                    </div>
+
+                    <div class="filter-bar">
+                        <input type="text" id="searchArsip" placeholder="Cari dokumen..." class="search-input">
+                        <select id="filterKategoriArsip" class="filter-input">
+                            <option value="">Semua Kategori</option>
+                            <option value="surat">Surat</option>
+                            <option value="laporan">Laporan</option>
+                            <option value="sk">SK</option>
+                            <option value="lainnya">Lainnya</option>
+                        </select>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nama Dokumen</th>
+                                    <th>Kategori</th>
+                                    <th>Tanggal Upload</th>
+                                    <th>Pengunggah</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableArsip">
+                                <tr>
+                                    <td colspan="5" class="no-data">Belum ada arsip dokumen</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Laporan Page -->
+                <div id="laporanPage" class="page">
+                    <h1 class="page-title">Laporan</h1>
+
+                    <div class="report-grid">
+                        <div class="report-card">
+                            <div class="report-icon">
+                                <i class="fas fa-inbox"></i>
+                            </div>
+                            <h3>Laporan Surat Masuk</h3>
+                            <p>Cetak laporan surat masuk per bulan</p>
+                            <div class="report-form">
+                                <select id="bulanLaporanMasuk" class="filter-input">
+                                    <option value="1">Januari</option>
+                                    <option value="2">Februari</option>
+                                    <option value="3">Maret</option>
+                                    <option value="4">April</option>
+                                    <option value="5">Mei</option>
+                                    <option value="6">Juni</option>
+                                    <option value="7">Juli</option>
+                                    <option value="8">Agustus</option>
+                                    <option value="9">September</option>
+                                    <option value="10">Oktober</option>
+                                    <option value="11">November</option>
+                                    <option value="12">Desember</option>
+                                </select>
+                                <input type="number" id="tahunLaporanMasuk" class="filter-input" placeholder="Tahun" value="2024">
+                                <button class="btn-primary" onclick="generateLaporanSuratMasuk()">
+                                    <i class="fas fa-file-pdf"></i> Cetak PDF
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="report-card">
+                            <div class="report-icon">
+                                <i class="fas fa-paper-plane"></i>
+                            </div>
+                            <h3>Laporan Surat Keluar</h3>
+                            <p>Cetak laporan surat keluar per bulan</p>
+                            <div class="report-form">
+                                <select id="bulanLaporanKeluar" class="filter-input">
+                                    <option value="1">Januari</option>
+                                    <option value="2">Februari</option>
+                                    <option value="3">Maret</option>
+                                    <option value="4">April</option>
+                                    <option value="5">Mei</option>
+                                    <option value="6">Juni</option>
+                                    <option value="7">Juli</option>
+                                    <option value="8">Agustus</option>
+                                    <option value="9">September</option>
+                                    <option value="10">Oktober</option>
+                                    <option value="11">November</option>
+                                    <option value="12">Desember</option>
+                                </select>
+                                <input type="number" id="tahunLaporanKeluar" class="filter-input" placeholder="Tahun" value="2024">
+                                <button class="btn-primary" onclick="generateLaporanSuratKeluar()">
+                                    <i class="fas fa-file-pdf"></i> Cetak PDF
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="report-card">
+                            <div class="report-icon">
+                                <i class="fas fa-archive"></i>
+                            </div>
+                            <h3>Rekap Arsip</h3>
+                            <p>Cetak rekap seluruh arsip dokumen</p>
+                            <div class="report-form">
+                                <button class="btn-primary" onclick="generateLaporanArsip()">
+                                    <i class="fas fa-file-pdf"></i> Cetak PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pengaturan Page -->
+                <div id="pengaturanPage" class="page">
+                    <h1 class="page-title">Pengaturan</h1>
+
+                    <div class="settings-container">
+                        <div class="settings-section">
+                            <h2><i class="fas fa-key"></i> Ubah Password</h2>
+                            <form id="formUbahPassword" class="settings-form">
+                                <div class="form-group">
+                                    <label>Password Lama</label>
+                                    <input type="password" id="oldPassword" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Password Baru</label>
+                                    <input type="password" id="newPassword" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Konfirmasi Password Baru</label>
+                                    <input type="password" id="confirmPassword" required>
+                                </div>
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-save"></i> Ubah Password
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Form Surat Masuk -->
+    <div id="modalSuratMasuk" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalSuratMasukTitle">Tambah Surat Masuk</h2>
+                <button class="close-modal" onclick="closeModal('modalSuratMasuk')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="formSuratMasuk">
+                <input type="hidden" id="editIdSuratMasuk">
+                <div class="form-group">
+                    <label>Nomor Surat *</label>
+                    <input type="text" id="nomorSuratMasuk" required>
+                </div>
+                <div class="form-group">
+                    <label>Tanggal Terima *</label>
+                    <input type="date" id="tanggalTerimaMasuk" required>
+                </div>
+                <div class="form-group">
+                    <label>Asal Surat *</label>
+                    <input type="text" id="asalSuratMasuk" required>
+                </div>
+                <div class="form-group">
+                    <label>Perihal *</label>
+                    <textarea id="perihalSuratMasuk" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>File Lampiran (PDF)</label>
+                    <input type="file" id="fileSuratMasuk" accept=".pdf">
+                    <small>Upload file PDF (maks 5MB)</small>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="statusBacaSuratMasuk">
+                        <option value="belum">Belum Dibaca</option>
+                        <option value="dibaca">Dibaca</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('modalSuratMasuk')">
+                        Batal
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Form Surat Keluar -->
+    <div id="modalSuratKeluar" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalSuratKeluarTitle">Tambah Surat Keluar</h2>
+                <button class="close-modal" onclick="closeModal('modalSuratKeluar')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="formSuratKeluar">
+                <input type="hidden" id="editIdSuratKeluar">
+                <div class="form-group">
+                    <label>Nomor Surat *</label>
+                    <input type="text" id="nomorSuratKeluar" required>
+                </div>
+                <div class="form-group">
+                    <label>Tanggal Keluar *</label>
+                    <input type="date" id="tanggalKeluar" required>
+                </div>
+                <div class="form-group">
+                    <label>Tujuan Surat *</label>
+                    <input type="text" id="tujuanSuratKeluar" required>
+                </div>
+                <div class="form-group">
+                    <label>Perihal *</label>
+                    <textarea id="perihalSuratKeluar" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>File Lampiran (PDF)</label>
+                    <input type="file" id="fileSuratKeluar" accept=".pdf">
+                    <small>Upload file PDF (maks 5MB)</small>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="statusApprovalSuratKeluar">
+                        <option value="menunggu">Menunggu Approval</option>
+                        <option value="disetujui">Disetujui</option>
+                        <option value="ditolak">Ditolak</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('modalSuratKeluar')">
+                        Batal
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Form Arsip -->
+    <div id="modalArsip" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalArsipTitle">Upload Dokumen</h2>
+                <button class="close-modal" onclick="closeModal('modalArsip')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="formArsip">
+                <input type="hidden" id="editIdArsip">
+                <div class="form-group">
+                    <label>Nama Dokumen *</label>
+                    <input type="text" id="namaArsip" required>
+                </div>
+                <div class="form-group">
+                    <label>Kategori *</label>
+                    <select id="kategoriArsip" required>
+                        <option value="">Pilih Kategori</option>
+                        <option value="surat">Surat</option>
+                        <option value="laporan">Laporan</option>
+                        <option value="sk">SK</option>
+                        <option value="lainnya">Lainnya</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>File Dokumen *</label>
+                    <input type="file" id="fileArsip" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                    <small>Upload file PDF, DOCX, JPG (maks 10MB)</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('modalArsip')">
+                        Batal
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 TU-Online. Sistem Manajemen Tata Usaha Sekolah. All rights reserved.</p>
+    </footer>
+
+    <script src="utils.js"></script>
+    <script src="crud.js"></script>
+    <script src="reports.js"></script>
+    <script src="init-reports.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
